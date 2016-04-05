@@ -47,6 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App_Config\Include\Helpfulcore\Helpfulcore.Logging.NLog.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
