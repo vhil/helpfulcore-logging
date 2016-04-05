@@ -8,22 +8,19 @@ namespace Helpfulcore.Logging.NLog
 	public class NLogLoggingProvider : ILoggingProvider
 	{
 		protected Logger Logger;
-		protected FileTarget FileTarget;
 
 		public NLogLoggingProvider(string filePath)
 		{
 			var config = new LoggingConfiguration();
-			this.FileTarget = new FileTarget
+			var fileTarget = new FileTarget
 			{
 				KeepFileOpen = true,
-				Layout = @"${date:format=YYYY-DD-MM HH\:mm\:ss} ${logger} ${message}",
+				Layout = @"${longdate} ${level:uppercase=true:padding=5} ${message}",
 				FileName = filePath
 			};
 
-			config.AddTarget("Log file target", this.FileTarget);
-
-			var rule2 = new LoggingRule("*", LogLevel.Debug, this.FileTarget);
-			config.LoggingRules.Add(rule2);
+			config.AddTarget("Log file target", fileTarget);
+			config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, fileTarget));
 
 			LogManager.Configuration = config;
 
@@ -34,7 +31,7 @@ namespace Helpfulcore.Logging.NLog
 		{
 			try
 			{
-				var msg = this.SafeFormat(message, formatParams);
+				var msg = this.GetMessage(message, owner, formatParams);
 
 				switch (level)
 				{
@@ -59,6 +56,20 @@ namespace Helpfulcore.Logging.NLog
 			{
 				// ignored
 			}
+		}
+
+		private string GetMessage(string message, object owner, object[] formatParams)
+		{
+			var ownerType = "NULL";
+
+			if (owner != null)
+			{
+				var type = owner as Type;
+				ownerType = type == null ? owner.GetType().Name : type.Name;
+			}
+
+			var msg = "[" + ownerType + "]: " + this.SafeFormat(message, formatParams);
+			return msg;
 		}
 
 		protected string SafeFormat(string message, object[] format)
