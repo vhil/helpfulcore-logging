@@ -22,13 +22,12 @@ instances and use interface methods for writing to your logs into all specified 
 ## Providers
 
 There are 2 implementation to use currently:
-1. Helpfulcore.Logging.Sc - provider which uses Sitecore.Diagnostics.Log 
-2. Helpfulcore.Logging.NLog - provider which uses NLog file logger.
-
-In order to use in your Sitecore website solution please install next nuget packages to your Website solution:
+* Helpfulcore.Logging.Sc - provider which uses Sitecore.Diagnostics.Log 
+* Helpfulcore.Logging.NLog - provider which uses NLog file logger.
 
 ### Helpfulcore.Logging.Sc
 
+In order to use in your Sitecore website solution please install next nuget packages to your Website solution:
 ```
 Install-Package Helpfulcore.Logging.Sc
 ```
@@ -63,7 +62,7 @@ container.Register(
 ```
 
 ### Helpfulcore.Logging.NLog
-
+In order to use this provider in your solution, please install nuget package:
 ```
 Install-Package Helpfulcore.Logging.NLog.Sc
 ```
