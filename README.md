@@ -87,3 +87,5 @@ The default configuration will write to your $(dataFolder)/logs/Website.log.${da
   </sitecore>
 </configuration>
 ```
+
+This allows you to configure your features and make them writing to dedicated log files if you need that.
