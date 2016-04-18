@@ -5,94 +5,45 @@ namespace Helpfulcore.Logging.Sc
     /// <summary>
     /// The default sitecore implementation of ILoggingProvider
     /// </summary>
-    public class ScLoggingProvider : ILoggingProvider
+    public class ScLoggingProvider : LoggingProvider
     {
-        /// <summary>
-        /// Logs the specified level.
-        /// </summary>
-        /// <param name="level">The level.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="owner">The owner.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="formatParams">The format parameters.</param>
-        public void Log(SeverityLevel level, string message, object owner, Exception exception = null, params object[] formatParams)
+        protected override void LogDebug(string message, object owner)
         {
-            try
+            Sitecore.Diagnostics.Log.Debug(message, owner);
+        }
+
+        protected override void LogInfo(string message, object owner)
+        {
+            Sitecore.Diagnostics.Log.Info(message, owner);
+        }
+
+        protected override void LogAudit(string message, object owner)
+        {
+            Sitecore.Diagnostics.Log.Audit(message, owner);
+        }
+
+        protected override void LogWarn(string message, object owner, Exception exception = null)
+        {
+            if (exception == null)
             {
-                var msg = GetMessage(message, owner, formatParams);
-
-                var ownerParam = owner ?? "NULL";
-
-                switch (level)
-                {
-                    case SeverityLevel.Info:
-                        Sitecore.Diagnostics.Log.Info(msg, ownerParam);
-                        break;
-                    case SeverityLevel.Debug:
-                        Sitecore.Diagnostics.Log.Debug(msg, ownerParam);
-                        break;
-                    case SeverityLevel.Audit:
-                        Sitecore.Diagnostics.Log.Audit(msg, ownerParam);
-                        break;
-                    case SeverityLevel.Error:
-                        if (exception == null)
-                        {
-                            Sitecore.Diagnostics.Log.Error(msg, ownerParam);
-                        }
-                        else
-                        {
-                            Sitecore.Diagnostics.Log.Error(msg, exception, ownerParam);
-                        }
-                        break;
-                    case SeverityLevel.Warn:
-                        if (exception == null)
-                        {
-                            Sitecore.Diagnostics.Log.Warn(msg, ownerParam);
-                        }
-                        else
-                        {
-                            Sitecore.Diagnostics.Log.Warn(msg, exception, ownerParam);
-
-                        }
-                        break;
-                }
+                Sitecore.Diagnostics.Log.Warn(message, owner);
             }
-            catch
+            else
             {
-	            // ignored
+                Sitecore.Diagnostics.Log.Warn(message, exception, owner);
             }
         }
 
-        private static string GetMessage(string message, object owner, object[] formatParams)
+        protected override void LogError(string message, object owner, Exception exception = null)
         {
-            var ownerType = "NULL";
-
-            if (owner != null)
+            if (exception == null)
             {
-                var type = owner as Type;
-                ownerType = type == null ? owner.GetType().Name : type.Name;
+                Sitecore.Diagnostics.Log.Error(message, owner);
             }
-
-            var msg = "[" + ownerType + "]: " + SafeFormat(message, formatParams);
-            return msg;
-        }
-
-        private static string SafeFormat(string message, object[] format)
-        {
-            if (format != null && format.Length > 0)
+            else
             {
-                for (var i = 0; i < format.Length; i++)
-                {
-                    var formatKey = string.Format("{{{0}}}", i);
-
-                    if (message.Contains(formatKey))
-                    {
-                        message = message.Replace(formatKey, format[i].ToString());
-                    }
-                }
+                Sitecore.Diagnostics.Log.Error(message, exception, owner);
             }
-
-            return message;
         }
     }
 }

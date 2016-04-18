@@ -1,14 +1,14 @@
 ﻿namespace Helpfulcore.Logging
 {
     /// <summary>
-    /// SeverityLevel
+    /// LogLevel
     /// </summary>
     public enum SeverityLevel
     {
-        Audit,
-        Debug,
-        Info,
-        Warn,
-        Error
+        Error = 1,
+        Warn = 2,
+        Audit = 3,
+        Info = 4,
+        Debug = 5,
     }
 }

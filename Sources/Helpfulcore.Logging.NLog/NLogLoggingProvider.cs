@@ -5,89 +5,94 @@ using NLog.Targets;
 
 namespace Helpfulcore.Logging.NLog
 {
-	public class NLogLoggingProvider : ILoggingProvider
-	{
+	public class NLogLoggingProvider : LoggingProvider
+    {
+        private static readonly object SyncRoot = new object();
+            
 		protected Logger Logger;
 
 		public NLogLoggingProvider(string filePath)
 		{
-			var config = new LoggingConfiguration();
-			var fileTarget = new FileTarget
-			{
-				KeepFileOpen = true,
-				Layout = @"${longdate} ${level:uppercase=true:padding=5} ${message}",
-				FileName = filePath
-			};
+		    lock (SyncRoot)
+		    {
+		        filePath = filePath.Replace("/", "\\");
+		        var loggerName = GenerateLoggerName(filePath);
+		        var targetName = "Target_" + loggerName;
 
-			config.AddTarget("Log file target", fileTarget);
-			config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, fileTarget));
+                if (LogManager.Configuration == null)
+		        {
+		            LogManager.Configuration = new LoggingConfiguration();
+		        }
 
-			LogManager.Configuration = config;
+		        var config = LogManager.Configuration;
+		        var fileTarget = new FileTarget
+		        {
+		            KeepFileOpen = true,
+		            Layout = @"${longdate} ${level:uppercase=true:padding=6} ${message}",
+		            FileName = filePath,
+		            Name = targetName
+                };
 
-			this.Logger = LogManager.GetLogger("NLogger");
+		        config.AddTarget(targetName, fileTarget);
+		        config.LoggingRules.Add(new LoggingRule(loggerName, global::NLog.LogLevel.Debug, fileTarget));
+
+		        LogManager.Configuration = config;
+		        this.Logger = LogManager.GetLogger(loggerName);
+		    }
 		}
 
-		public void Log(SeverityLevel level, string message, object owner, Exception exception = null, params object[] formatParams)
-		{
-			try
-			{
-				var msg = this.GetMessage(message, owner, formatParams);
+	    private static string GenerateLoggerName(string filePath)
+	    {
+	        var loggerName = "NLogger_" + filePath
+                .Replace("\\", "_")
+                .Replace("{", "")
+                .Replace("}", "")
+                .Replace("=", "")
+                .Replace("$", "")
+                .Replace("*", "")
+                .Replace(".", "_")
+                .Replace(":", "");
 
-				switch (level)
-				{
-					case SeverityLevel.Info:
-						this.Logger.Info(msg);
-						break;
-					case SeverityLevel.Debug:
-						this.Logger.Debug(msg);
-						break;
-					case SeverityLevel.Audit:
-						this.Logger.Info("AUDIT: {0}", msg);
-						break;
-					case SeverityLevel.Error:
-						this.Logger.Error(msg, exception, null);
-						break;
-					case SeverityLevel.Warn:
-						this.Logger.Warn(msg, exception, null);
-						break;
-				}
-			}
-			catch
-			{
-				// ignored
-			}
-		}
+	        return loggerName;
+	    }
 
-		private string GetMessage(string message, object owner, object[] formatParams)
-		{
-			var ownerType = "NULL";
+	    protected override void LogDebug(string message, object owner)
+	    {
+            this.Logger.Debug(message);
+        }
 
-			if (owner != null)
-			{
-				var type = owner as Type;
-				ownerType = type == null ? owner.GetType().Name : type.Name;
-			}
+	    protected override void LogInfo(string message, object owner)
+	    {
+	        this.Logger.Info(message);
+	    }
 
-			var msg = "[" + ownerType + "]: " + this.SafeFormat(message, formatParams);
-			return msg;
-		}
+	    protected override void LogAudit(string message, object owner)
+	    {
+            this.Logger.Info(message);
+        }
 
-		protected string SafeFormat(string message, object[] format)
-		{
-			if (format != null && format.Length > 0)
-			{
-				for (var i = 0; i < format.Length; i++)
-				{
-					var formatKey = string.Format("{{{0}}}", i);
+	    protected override void LogWarn(string message, object owner, Exception exception = null)
+	    {
+            if (exception != null)
+            {
+                this.Logger.Warn(exception, message);
+            }
+            else
+            {
+                this.Logger.Warn(message);
+            }
+        }
 
-					if (message.Contains(formatKey))
-					{
-						message = message.Replace(formatKey, format[i].ToString());
-					}
-				}
-			}
-
-			return message;
-		}
-	}
+	    protected override void LogError(string message, object owner, Exception exception = null)
+	    {
+            if (exception != null)
+            {
+                this.Logger.Warn(exception, message);
+            }
+            else
+            {
+                this.Logger.Warn(message);
+            }
+        }
+    }
 }
