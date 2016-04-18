@@ -34,6 +34,7 @@ Install-Package Helpfulcore.Logging.Sc
 This package will install the Sitecore provider and will add the configuration for the LoggingService with one provider which just writes to Sitecore.Diagnostics.Log.
 The configuration will reside in dedicated include config file /App_Config/Include/Helpfulcore/Helpfulcore.Logging.Sc.config
 ```xml
+<?xml version="1.0" encoding="utf-8" ?>
 <configuration xmlns:patch="http://www.sitecore.net/xmlconfig/">
   <sitecore>
     <helpfulcore>
@@ -42,7 +43,9 @@ The configuration will reside in dedicated include config file /App_Config/Inclu
           <param name="provider1" ref="helpfulcore/logging/providers/scLoggingProvider"/>
         </loggingService>
         <providers>
-          <scLoggingProvider type="Helpfulcore.Logging.Sc.ScLoggingProvider, Helpfulcore.Logging.Sc" />
+          <scLoggingProvider type="Helpfulcore.Logging.Sc.ScLoggingProvider, Helpfulcore.Logging.Sc" singleInstance="true" >
+            <LogLevel>Debug</LogLevel>
+          </scLoggingProvider>
         </providers>
       </logging>
     </helpfulcore>
@@ -64,23 +67,30 @@ container.Register(
 ### Helpfulcore.Logging.NLog
 In order to use this provider in your solution, please install nuget package:
 ```
-Install-Package Helpfulcore.Logging.NLog.Sc
+Install-Package Helpfulcore.Logging.NLog
 ```
 This package will install the NLog provider and will add it to the LoggingService as second provider injected into constructor. Installing both packages leads to having single logging service which writes to both providers.
 The configuration will reside in dedicated include config file /App_Config/Include/Helpfulcore/Helpfulcore.Logging.NLog.config
 The default configuration will write to your $(dataFolder)/logs/Website.log.${date:format=yyyyMMdd}.txt file.
 ```xml
+<?xml version="1.0" encoding="utf-8" ?>
 <configuration xmlns:patch="http://www.sitecore.net/xmlconfig/">
   <sitecore>
     <helpfulcore>
       <logging>
         <loggingService type="Helpfulcore.Logging.LoggingService, Helpfulcore.Logging" singleInstance="true" >
-          <param name="provider2" ref="helpfulcore/logging/providers/nlogLoggingProvider"/>
+          <param name="provider2" ref="helpfulcore/logging/providers/websiteLogFileProvider"/>
+          <param name="provider3" ref="helpfulcore/logging/providers/errorLogFileProvider"/>
         </loggingService>
         <providers>
-          <nlogLoggingProvider type="Helpfulcore.Logging.NLog.NLogLoggingProvider, Helpfulcore.Logging.NLog" filePath="$(dataFolder)/logs/Website.log.${date:format=yyyyMMdd}.txt">
-            <param name="filePath">$(filePath)</param>
-          </nlogLoggingProvider>
+          <websiteLogFileProvider type="Helpfulcore.Logging.NLog.NLogLoggingProvider, Helpfulcore.Logging.NLog" logFilePath="$(dataFolder)/logs/Website.log.${date:format=yyyyMMdd}.txt" singleInstance="true">
+            <param name="filePath">$(logFilePath)</param>
+            <LogLevel>Debug</LogLevel>
+          </websiteLogFileProvider>
+          <errorLogFileProvider type="Helpfulcore.Logging.NLog.NLogLoggingProvider, Helpfulcore.Logging.NLog" logFilePath="$(dataFolder)/logs/Website.Errors.log.${date:format=yyyyMMdd}.txt" singleInstance="true">
+            <param name="filePath">$(logFilePath)</param>
+            <LogLevel>Warn</LogLevel>
+          </errorLogFileProvider>
         </providers>
       </logging>
     </helpfulcore>
@@ -88,4 +98,4 @@ The default configuration will write to your $(dataFolder)/logs/Website.log.${da
 </configuration>
 ```
 
-This allows you to configure your features and make them writing to dedicated log files if you need that.
+This feature also allows you to configure your features and make them writing to dedicated log files if you need that.
