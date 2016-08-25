@@ -87,11 +87,11 @@ namespace Helpfulcore.Logging.NLog
 	    {
             if (exception != null)
             {
-                this.Logger.Warn(exception, message);
+                this.Logger.Error(exception, message);
             }
             else
             {
-                this.Logger.Warn(message);
+                this.Logger.Error(message);
             }
         }
     }
