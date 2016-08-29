@@ -87,7 +87,7 @@ namespace Helpfulcore.Logging.NLog
 	    {
             if (exception != null)
             {
-                this.Logger.Error(exception, message);
+                this.Logger.Error(exception, message + exception);
             }
             else
             {
