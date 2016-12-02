@@ -27,7 +27,7 @@ namespace Helpfulcore.Logging.NLog
 		        var config = LogManager.Configuration;
 		        var fileTarget = new FileTarget
 		        {
-		            KeepFileOpen = true,
+		            KeepFileOpen = false,
 		            Layout = @"${longdate} ${level:uppercase=true:padding=6} ${message}",
 		            FileName = filePath,
 		            Name = targetName
