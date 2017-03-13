@@ -27,10 +27,13 @@ namespace Helpfulcore.Logging.NLog
 		        var config = LogManager.Configuration;
 		        var fileTarget = new FileTarget
 		        {
-		            KeepFileOpen = false,
-		            Layout = @"${longdate} ${level:uppercase=true:padding=6} ${message}",
+<<<<<<< HEAD
 		            KeepFileOpen = true,
 		            Layout = @"${longdate} ${threadid:uppercase=true:padding=4} ${level:uppercase=true:padding=6} ${message}",
+=======
+		            KeepFileOpen = false,
+		            Layout = @"${longdate} ${level:uppercase=true:padding=6} ${message}",
+>>>>>>> ad46248fb37a22deb40f30ce3d208f11703254a9
 		            FileName = filePath,
 		            Name = targetName
                 };
