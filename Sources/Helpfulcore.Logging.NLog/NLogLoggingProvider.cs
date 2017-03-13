@@ -28,8 +28,6 @@ namespace Helpfulcore.Logging.NLog
 		        var fileTarget = new FileTarget
 		        {
 		            KeepFileOpen = false,
-		            Layout = @"${longdate} ${level:uppercase=true:padding=6} ${message}",
-		            KeepFileOpen = true,
 		            Layout = @"${longdate} ${threadid:uppercase=true:padding=4} ${level:uppercase=true:padding=6} ${message}",
 		            FileName = filePath,
 		            Name = targetName
